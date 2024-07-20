@@ -1,0 +1,2 @@
+* cloggen (C Log Generator)
+An extremely generic logging framework for making printing in C not hurt.
