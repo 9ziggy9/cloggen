@@ -34,7 +34,7 @@ ClogArena *__CLOG_ARENA__ = NULL;
 #define CLOG_RESET()   _clog_arena_reset(__CLOG_ARENA__)
 #define CLOG_CLOSE()   _clog_arena_free(__CLOG_ARENA__)
 
-typedef struct { const char *str; size_t len; } ClogString;
+typedef struct { const char *restrict str; size_t len; } ClogString;
 
 ClogString clog_string_make(const char *str) {
   size_t len = strlen(str);
@@ -48,10 +48,14 @@ void clog_string_print(ClogString clog_string) {
   fwrite(clog_string.str, sizeof(char), clog_string.len, stdout);
 }
 
+// TODO: delineate between format string and non-format string
+#define CLOG_STRING_FPRINT(clog_string, ...) \
+  do { fprintf(stdout, clog_string.str, ##__VA_ARGS__); } while (0);
+
 int main(void) {
   CLOG_INIT();
-  ClogString str = clog_string_make("Hello, world!\n");
-  clog_string_print(str);
+  ClogString str = clog_string_make("Hello, %s!\n");
+  CLOG_STRING_FPRINT(str, "ziggy");
   return EXIT_SUCCESS;
 }
 
