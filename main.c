@@ -44,18 +44,30 @@ ClogString clog_string_make(const char *str) {
   return (ClogString){ buffer, len };
 }
 
-void clog_string_print(ClogString clog_string) {
-  fwrite(clog_string.str, sizeof(char), clog_string.len, stdout);
+void clog_string_write(ClogString clog_string, FILE *fd) {
+  fwrite(clog_string.str, sizeof(char), clog_string.len, fd);
 }
 
-// TODO: delineate between format string and non-format string
-#define CLOG_STRING_FPRINT(clog_string, ...) \
-  do { fprintf(stdout, clog_string.str, ##__VA_ARGS__); } while (0);
+// HACK: macros to get around annoying format string warnings
+// We need to get rid of this, perhaps a flag in a ClogString which
+// indicates whether or not the string is a format string.
+#define CLOG_DISABLE_FORMAT_SECURITY                      \
+  _Pragma("GCC diagnostic push")                          \
+  _Pragma("GCC diagnostic ignored \"-Wformat-security\"")
+#define CLOG_ENABLE_FORMAT_SECURITY  _Pragma("GCC diagnostic pop")
+
+#define CLOG_STRING_FPRINT(clog_string, ...)          \
+  do {                                                \
+    CLOG_DISABLE_FORMAT_SECURITY;                     \
+    fprintf(stdout, clog_string.str, ##__VA_ARGS__);  \
+    CLOG_ENABLE_FORMAT_SECURITY;                      \
+  } while (0);
 
 int main(void) {
   CLOG_INIT();
-  ClogString str = clog_string_make("Hello, %s!\n");
-  CLOG_STRING_FPRINT(str, "ziggy");
+  ClogString str = clog_string_make("Hello, world!\n");
+  clog_string_write(str, stdout);
+  CLOG_STRING_FPRINT(str);
   return EXIT_SUCCESS;
 }
 
