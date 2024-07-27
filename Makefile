@@ -1,14 +1,15 @@
-EXE=./test
-CC=gcc
-CFLAGS=-Wall -Wextra -pedantic -Wconversion
-SRCS = cloggen.c
-OBJS = $(SRCS:.c=.o)
+EXE    = ./test
+CC     = gcc
+CFLAGS = -Wall -Wextra -pedantic -Wconversion
+SRCS   = cloggen.c
+OBJS   = $(SRCS:.c=.o)
+LIBS   = -lm
 
 test: clean all
 	./test
 
 all: $(OBJS) main.c
-	$(CC) $(CFLAGS) main.c -o $(EXE) $(OBJS)
+	$(CC) $(CFLAGS) main.c -o $(EXE) $(OBJS) $(LIBS)
 
 $(OBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c $<
